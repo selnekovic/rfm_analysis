@@ -1,0 +1,5 @@
+streamlit>=1.50.0
+polars>=1.34.0
+plotly>=6.4.0
+squarify>=0.4.4
+matplotlib>=3.10.7
