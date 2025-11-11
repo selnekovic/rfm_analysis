@@ -45,15 +45,8 @@ def create_squarify_treemap(seg_counts: pd.DataFrame) -> plt.Figure:
 global_styles = """
     <style>
         /* app frame */
-        [data-testid="stAppViewContainer"] > .main {
-            max-width: 1200px;
-            padding-top: 1rem;
-            padding-bottom: 4rem; /* more space bottom */
-        }
-
-        /* increase distance between sections */
-        section[data-testid="stVerticalBlock"] + section[data-testid="stVerticalBlock"] {
-            margin-top: 3rem !important;
+        .stMainBlockContainer {
+            max-width:80%;
         }
 
         /* page title */
@@ -105,6 +98,11 @@ global_styles = """
         /* markdown spacing */
         .stMarkdown p {
             margin-bottom: 0.6rem;
+        }
+
+        /* bolded text in a bullet list */
+        .stMarkdown li strong {
+            font-size: 1rem;
         }
     </style>
     """

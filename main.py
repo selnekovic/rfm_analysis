@@ -13,16 +13,13 @@ st.set_page_config(page_title="RFM / RFE analysis", layout="wide")
 st.session_state.setdefault("rf_variant", "Recency Frequency Monetary (e.g. revenue)")
 st.session_state.setdefault("remove_outliers", False)
 st.session_state.setdefault("data_mode", "sample")
-st.session_state.setdefault("data_version", 0)  # bumps when a new dataset/mapping is imported
+st.session_state.setdefault("data_version", 0)  
 sample_data = "sample_data.csv"
 
-# ---- small cached helpers ----
 @st.cache_data(show_spinner=False)
 def _to_csv_bytes(df_pd: pd.DataFrame) -> bytes:
     return df_pd.to_csv(index=False).encode("utf-8")
 
-# memoize pandas apply for mapping? (kept as-is; usually fine)
-# you could later vectorize `map_user_segment` if needed
 
 # ---- global styles ----
 st.markdown(global_styles, unsafe_allow_html=True)
@@ -32,7 +29,7 @@ st.markdown("<div class='app-title'>RFM / RFE Analysis</div>", unsafe_allow_html
 st.markdown(
     """
     <div class='app-subtitle'> 
-        version 0.9 | <a href='https://selnekovic.com' target='_blank' style='color:#2563eb; text-decoration:none; font-weight:500;'>
+        version 1.0 | <a href='https://selnekovic.com' target='_blank' style='color:#2563eb; text-decoration:none; font-weight:500;'>
             selnekovic.com
         </a>
     </div>
@@ -42,9 +39,8 @@ st.markdown(
 
 # ---- load & process (cached via session_state) ----
 # sidebar_import now sets st.session_state["raw_df"] and bumps ["data_version"] when changed
-raw_df: pl.DataFrame = sidebar_import(sample_data)  # prepared columns: user_id, date, value
+raw_df: pl.DataFrame = sidebar_import(sample_data)  
 
-# build a pipeline key to reuse RFM results across reruns
 pipeline_key = (
     st.session_state.get("data_version", 0),
     st.session_state.get("rf_variant"),
@@ -54,10 +50,10 @@ pipeline_key = (
 if st.session_state.get("pipeline_key") != pipeline_key:
     df = raw_df
     if st.session_state["remove_outliers"] is True:
-        df = remove_outliers_percentile(df)  # polars in, polars out (from _helpers)
-    df_transformed = rfm_transformation(df)     # polars
-    rfm_polars = rfm_scoring(df_transformed)    # polars
-    rfm = rfm_polars.to_pandas()                # pandas for UI and .apply
+        df = remove_outliers_percentile(df)  
+    df_transformed = rfm_transformation(df)     
+    rfm_polars = rfm_scoring(df_transformed)    
+    rfm = rfm_polars.to_pandas()                
     st.session_state["rfm"] = rfm
     st.session_state["pipeline_key"] = pipeline_key
 else:

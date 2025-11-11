@@ -2,10 +2,8 @@ import io
 import streamlit as st
 import polars as pl
 
-# -------------------------
-# cached I/O + prep helpers
-# -------------------------
 
+# cached I/O + prep helpers
 @st.cache_data(show_spinner=False)
 def _read_sample_csv(path: str) -> pl.DataFrame:
     return pl.read_csv(path)
@@ -26,7 +24,6 @@ def _distinct(*names: str) -> bool:
 
 # -------------------------
 # main sidebar entry point
-# -------------------------
 
 def sidebar_import(sample_data: str = "sample_data.csv") -> pl.DataFrame:
     """
@@ -66,7 +63,7 @@ def sidebar_import(sample_data: str = "sample_data.csv") -> pl.DataFrame:
             prev_id = st.session_state.get("uploaded_id")
             if prev_id is None or prev_id != uploaded_id:
                 st.session_state["uploaded_id"] = uploaded_id
-                st.session_state["uploaded_ready"] = False  # must remap/confirm
+                st.session_state["uploaded_ready"] = False  
                 st.session_state["data_mode"] = "uploaded"
 
         # ---------- SAMPLE DATA PATH ----------
@@ -187,7 +184,7 @@ def sidebar_import(sample_data: str = "sample_data.csv") -> pl.DataFrame:
             # set keys + bump version if changed
             new_key = (
                 "uploaded",
-                uploaded_id,           # (name, size)
+                uploaded_id,           
                 user_col, date_col, value_col,
                 df_prepared.height, df_prepared.width,
             )
@@ -207,9 +204,8 @@ def sidebar_import(sample_data: str = "sample_data.csv") -> pl.DataFrame:
         st.info("choose the three columns, then click **import**")
         st.stop()
 
-# -------------------------
+
 # validation / preparation
-# -------------------------
 
 def prepare_rfm_columns(df: pl.DataFrame) -> pl.DataFrame:
     """
@@ -248,7 +244,6 @@ def prepare_rfm_columns(df: pl.DataFrame) -> pl.DataFrame:
     else:
         raise ValueError(f"unsupported dtype for value: {val_dtype}")
 
-    # date -> pl.Date
     date_dtype = out.schema["date"]
     if date_dtype == pl.Date:
         pass
@@ -294,7 +289,6 @@ def prepare_rfm_columns(df: pl.DataFrame) -> pl.DataFrame:
     else:
         raise ValueError(f"unsupported dtype for date: {date_dtype}")
 
-    # guarantees
     assert out.schema["value"] == pl.Float64, "value is not pl.Float64 after casting"
     assert out.schema["date"] == pl.Date, "date is not pl.Date after parsing"
     return out
