@@ -51,20 +51,19 @@ def rfm_transformation(
     """
 
     analysis_date = df.select(pl.col("date").max()).item()
-    
+
     rfm_df = (
-        df
-        .with_columns(
-            pl.col('date')
-        )
-        .group_by('user_id')
+        df.group_by("user_id")
         .agg([
-                (pl.lit(analysis_date).cast(pl.Date) - pl.col('date').max()).dt.total_days().cast(pl.Int64).alias('recency'),
-                pl.count().alias('frequency'),
-                pl.col('value').sum().alias('monetary')
-            ]
-        )
+            (
+                pl.lit(analysis_date).cast(pl.Date)
+                - pl.col("date").max().cast(pl.Date)
+            ).dt.total_days().cast(pl.Int64).alias("recency"),
+            pl.len().alias("frequency"),
+            pl.col("value").sum().alias("monetary"),
+        ])
     )
+
 
     return rfm_df
 
@@ -120,7 +119,7 @@ def rfm_scoring(
     scored = (
         df
         .with_columns([
-            _score_expr('recency', r_th, higher_is_better=True).alias('r_score'),
+            _score_expr('recency', r_th, higher_is_better=False).alias('r_score'),
             _score_expr('frequency', f_th, higher_is_better=True).alias('f_score'),
             _score_expr('monetary', m_th, higher_is_better=True).alias('m_score'),
         ])
@@ -147,7 +146,7 @@ def map_user_segment(row) -> str:
         r = int(row["r_score"])
         f = int(row["f_score"])
         m = int(row["m_score"]) 
-    except (ValueError, KeyError):
+    except (ValueError, KeyError, TypeError):
         return "Invalid Score"
 
     fm_index = f + m
